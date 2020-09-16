@@ -192,37 +192,43 @@ void q_reverse(queue_t *q)
  * No effect if q is NULL or empty. In addition, if q has only one
  * element, do nothing.
  */
-void split_list(list_ele_t **head, list_ele_t **list1, list_ele_t **list2)
+void split_list(list_ele_t *head, list_ele_t **list1, list_ele_t **list2)
 {
-    while ((*list2) && (*list2)->next) {
-        *list1 = (*list1)->next;
-        *list2 = (*list2)->next->next;
-    }
-    // list1 is at the midnode
+    list_ele_t *slow = head;
+    list_ele_t *fast = head->next;
 
-    *list2 = (*list1)->next;
-    *list1 = *head;
+    while (fast && fast->next) {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+    // slow is at the midnode
+
+    *list1 = head;
+    *list2 = slow->next;
+
+    // Split actually
+    slow->next = NULL;
 }
 
-void merge_sortedlist(list_ele_t **head, list_ele_t **list1, list_ele_t **list2)
+void merge_list(list_ele_t *head, list_ele_t **list1, list_ele_t **list2)
 {
-    // Base case
-    if (*list1 == NULL) {
-        *head = *list2;
-        return;
-    } else if (*list2 == NULL) {
-        *head = *list1;
-        return;
-    }
+    list_ele_t **cursor = &head;
 
-    // Recursively merge two lists
-    if (strcmp((*list1)->value, (*list2)->value) >= 0) {
-        *head = *list1;
-        merge_sortedlist(&(*head)->next, &(*list1)->next, list2);
-    } else {
-        *head = *list2;
-        merge_sortedlist(&(*head)->next, list1, &(*list2)->next);
+    while ((*list1) && (*list2)) {
+        if (strcmp((*list1)->value, (*list2)->value) < 0) {
+            *cursor = *list1;
+            *list1 = (*list1)->next;
+        } else {
+            *cursor = *list2;
+            *list2 = (*list2)->next;
+        }
+        cursor = &((*cursor)->next);
     }
+    // avoid dropped off
+    if (*list1)
+        *cursor = *list1;
+    if (*list2)
+        *cursor = *list2;
 }
 
 void merge_sort(list_ele_t **head)
@@ -232,17 +238,17 @@ void merge_sort(list_ele_t **head)
         return;
 
     // Splitting list
-    list_ele_t **list1 = head;
-    list_ele_t **list2 = &(*head)->next;
+    list_ele_t *list1 = NULL;
+    list_ele_t *list2 = NULL;
 
-    split_list(head, list1, list2);
+    split_list(*head, &list1, &list2);
 
     // Recursive sorting two list
-    merge_sort(list1);
-    merge_sort(list2);
+    merge_sort(&list1);
+    merge_sort(&list2);
 
     // Merge sorted lists
-    merge_sortedlist(head, list1, list2);
+    merge_list(*head, &list1, &list2);
 }
 
 void q_sort(queue_t *q)
