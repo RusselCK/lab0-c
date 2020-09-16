@@ -194,9 +194,6 @@ void q_reverse(queue_t *q)
  */
 void split_list(list_ele_t **head, list_ele_t **list1, list_ele_t **list2)
 {
-    //*list1 = *head;
-    //*list2 = (*head)->next;
-
     while ((*list2) && (*list2)->next) {
         *list1 = (*list1)->next;
         *list2 = (*list2)->next->next;
@@ -219,7 +216,7 @@ void merge_sortedlist(list_ele_t **head, list_ele_t **list1, list_ele_t **list2)
     }
 
     // Recursively merge two lists
-    if ((*list1)->value <= (*list2)->value) {
+    if (strcmp((*list1)->value, (*list2)->value) >= 0) {
         *head = *list1;
         merge_sortedlist(&(*head)->next, &(*list1)->next, list2);
     } else {
@@ -236,9 +233,7 @@ void merge_sort(list_ele_t **head)
 
     // Splitting list
     list_ele_t **list1 = head;
-    ;
     list_ele_t **list2 = &(*head)->next;
-    ;
 
     split_list(head, list1, list2);
 
@@ -263,3 +258,48 @@ void q_sort(queue_t *q)
     while (q->tail->next)
         q->tail = q->tail->next;
 }
+
+// void q_print(queue_t *q)
+// {
+//     for (list_ele_t *current = q->head; current; current = current->next)
+//         printf("%s ", current->value);
+//     printf("\n");
+// }
+
+
+// int main(int argc, char const *argv[])
+// {
+//     queue_t *q = NULL;
+
+//     q_print(q);
+
+//     q_insert_head(q, 72);
+//     q_insert_head(q, 101);
+//     q_insert_head(q, 108);
+//     q_insert_head(q, 109);
+//     q_insert_head(q, 110);
+//     q_insert_head(q, 111);
+
+//     print_list(head);
+
+//     node_t *entry = find_entry(head, 101);
+//     remove_entry(&head, entry);
+
+//     entry = find_entry(head, 111);
+//     remove_entry(&head, entry);
+
+//     print_list(head);
+
+//     /* swap pair.
+//      * See https://leetcode.com/problems/swap-nodes-in-pairs/
+//      */
+//     //head = swap_pair(head);
+//     swap_pair3(&head);
+//     print_list(head);
+
+//     //head = reverse(head);
+//     reverse2(&head);
+//     print_list(head);
+
+//     return 0;
+// }
