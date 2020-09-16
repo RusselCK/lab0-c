@@ -221,11 +221,11 @@ void split_list(list_ele_t **head, list_ele_t **list1, list_ele_t **list2)
     }
     // slow is at the midnode
 
-    *list1 = *head;
     *list2 = (*slow)->next;
-
     // Split actually
     (*slow)->next = NULL;
+
+    *list1 = *head;
 }
 
 void merge_list(list_ele_t **head, list_ele_t **list1, list_ele_t **list2)
@@ -256,8 +256,8 @@ void merge_sort(list_ele_t **head)
         return;
 
     // Splitting list
-    list_ele_t *list1 = (*head)->next;
-    list_ele_t *list2 = *head;
+    list_ele_t *list1 = *head;
+    list_ele_t *list2 = (*head)->next;
 
     split_list(head, &list1, &list2);
 
