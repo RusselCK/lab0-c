@@ -29,15 +29,12 @@ void q_free(queue_t *q)
     if (!q)
         return;
 
-    list_ele_t *tmp;
-    tmp = q->head;
     while (q->head) {
+        list_ele_t *tmp = q->head;
         tmp->next = NULL;
+        q->head = q->head->next;
         free(tmp->value);
         free(tmp);
-
-        q->head = q->head->next;
-        tmp = q->head;
     }
     /* Free queue structure */
     free(q);
@@ -114,6 +111,8 @@ bool q_insert_tail(queue_t *q, char *s)
 
     // insert tail
     newt->next = NULL;
+    if (!q->head)
+        q->head = newt;
     q->tail->next = newt;
     q->tail = newt;
     (q->size)++;
