@@ -29,7 +29,8 @@ void q_free(queue_t *q)
     if (!q)
         return;
 
-    list_ele_t *tmp = q->head;
+    list_ele_t *tmp;
+    tmp = q->head;
     while (q->head) {
         tmp->next = NULL;
         free(tmp->value);
@@ -65,9 +66,11 @@ bool q_insert_head(queue_t *q, char *s)
         free(newh);
         return false;
     }
+    newh->next = NULL;
 
-    memset(newh->value, '\0', strlen(s) + 1);
-    strncpy(newh->value, s, strlen(s));
+    // memset(newh->value, '\0', strlen(s) + 1);
+    // strncpy(newh->value, s, strlen(s));
+    memcpy(newh->value, s, strlen(s) + 1);
 
     // insert head
     newh->next = q->head;
@@ -75,7 +78,7 @@ bool q_insert_head(queue_t *q, char *s)
     /* What if either call to malloc returns NULL? */
     if (!q->tail)
         q->tail = newh;
-    q->size++;
+    (q->size)++;
     return true;
 }
 
@@ -105,14 +108,15 @@ bool q_insert_tail(queue_t *q, char *s)
         return false;
     }
 
-    memset(newt->value, '\0', strlen(s) + 1);
-    strncpy(newt->value, s, strlen(s));
+    // memset(newt->value, '\0', strlen(s) + 1);
+    // strncpy(newt->value, s, strlen(s));
+    memcpy(newt->value, s, strlen(s) + 1);
 
     // insert tail
     newt->next = NULL;
     q->tail->next = newt;
     q->tail = newt;
-    q->size++;
+    (q->size)++;
 
     return true;
 }
@@ -136,15 +140,18 @@ bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
      *If sp is non-NULL and an element is removed, copy the removed string to
      **sp (up to a maximum of bufsize-1 characters, plus a null terminator.)
      */
-    list_ele_t *tmp = q->head;
-    if (sp)
-        strncpy(sp, tmp->value, bufsize);
+    list_ele_t *tmp;
+    tmp = q->head;
+    if (sp) {
+        strncpy(sp, tmp->value, bufsize - 1);
+        sp[bufsize - 1] = '\0';
+    }
 
     // remove head
     q->head = q->head->next;
     free(tmp->value);
     free(tmp);
-    q->size--;
+    (q->size)--;
 
     return true;
 }
@@ -158,7 +165,7 @@ int q_size(queue_t *q)
     /* TODO: You need to write the code for this function */
     /* Remember: It should operate in O(1) time */
     /* TODO: Remove the above comment when you are about to implement. */
-    return !q ? 0 : q->size;
+    return (!q) ? 0 : q->size;
 }
 
 /*
@@ -175,10 +182,12 @@ void q_reverse(queue_t *q)
     if (!q || !q->head)
         return;
 
-    list_ele_t *cursor = NULL;
     q->tail = q->head;
+
+    list_ele_t *cursor = NULL;
+    list_ele_t *next = NULL;
     while (q->head) {
-        list_ele_t *next = q->head->next;
+        next = q->head->next;
         q->head->next = cursor;
         cursor = q->head;
         q->head = next;
@@ -192,27 +201,27 @@ void q_reverse(queue_t *q)
  * No effect if q is NULL or empty. In addition, if q has only one
  * element, do nothing.
  */
-void split_list(list_ele_t *head, list_ele_t **list1, list_ele_t **list2)
+void split_list(list_ele_t **head, list_ele_t **list1, list_ele_t **list2)
 {
-    list_ele_t *slow = head;
-    list_ele_t *fast = head->next;
+    list_ele_t **slow = list1;
+    list_ele_t **fast = list2;
 
-    while (fast && fast->next) {
-        slow = slow->next;
-        fast = fast->next->next;
+    while ((*fast) && (*fast)->next) {
+        *slow = (*slow)->next;
+        *fast = (*fast)->next->next;
     }
     // slow is at the midnode
 
-    *list1 = head;
-    *list2 = slow->next;
+    *list1 = *head;
+    *list2 = (*slow)->next;
 
     // Split actually
-    slow->next = NULL;
+    (*slow)->next = NULL;
 }
 
-void merge_list(list_ele_t *head, list_ele_t **list1, list_ele_t **list2)
+void merge_list(list_ele_t **head, list_ele_t **list1, list_ele_t **list2)
 {
-    list_ele_t **cursor = &head;
+    list_ele_t **cursor = head;
 
     while ((*list1) && (*list2)) {
         if (strcmp((*list1)->value, (*list2)->value) < 0) {
@@ -238,18 +247,55 @@ void merge_sort(list_ele_t **head)
         return;
 
     // Splitting list
-    list_ele_t *list1 = NULL;
-    list_ele_t *list2 = NULL;
+    list_ele_t *list1 = (*head)->next;
+    ;
+    list_ele_t *list2 = *head;
 
-    split_list(*head, &list1, &list2);
+    split_list(head, &list1, &list2);
 
     // Recursive sorting two list
-    merge_sort(&list1);
-    merge_sort(&list2);
+    merge_sort(&(list1));
+    merge_sort(&(list2));
 
     // Merge sorted lists
-    merge_list(*head, &list1, &list2);
+    merge_list(head, &list1, &list2);
 }
+
+// void merge_sort1(list_ele_t **head)
+// {
+//     if (!(*head) || !((*head)->next))
+//         return;
+
+//     list_ele_t *l1 = (*head)->next;
+//     list_ele_t *l2 = *head;
+
+//     while (l1 && l1->next) {
+//         l2 = l2->next;
+//         l1 = l1->next->next;
+//     }
+//     l1 = l2->next;
+//     l2->next = NULL;
+//     l2 = *head;
+
+//     merge_sort1(&l2);
+//     merge_sort1(&l1);
+
+//     *head = NULL;
+//     list_ele_t **tmp = head;
+
+//     while (l1 && l2) {
+//         if (strcmp(l1->value, l2->value) < 0) {
+//             *tmp = l1;
+//             l1 = l1->next;
+//         } else {
+//             *tmp = l2;
+//             l2 = l2->next;
+//         }
+//         tmp = &((*tmp)->next);
+//     }
+
+//     *tmp = l1 ? l1 : l2;
+// }
 
 void q_sort(queue_t *q)
 {
@@ -260,6 +306,7 @@ void q_sort(queue_t *q)
         return;
 
     merge_sort(&q->head);
+    // merge_sort1(&q->head);
 
     while (q->tail->next)
         q->tail = q->tail->next;
