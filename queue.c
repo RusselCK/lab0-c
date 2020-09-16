@@ -31,7 +31,6 @@ void q_free(queue_t *q)
 
     while (q->head) {
         list_ele_t *tmp = q->head;
-        tmp->next = NULL;
         q->head = q->head->next;
         free(tmp->value);
         free(tmp);
@@ -58,7 +57,8 @@ bool q_insert_head(queue_t *q, char *s)
     if (!newh)
         return false;
     /* Don't forget to allocate space for the string and copy it */
-    newh->value = malloc(sizeof(char) * (strlen(s) + 1));
+    size_t length = strlen(s) + 1;
+    newh->value = (char *) malloc(length * sizeof(char));
     if (!newh->value) {
         free(newh);
         return false;
@@ -67,7 +67,8 @@ bool q_insert_head(queue_t *q, char *s)
 
     // memset(newh->value, '\0', strlen(s) + 1);
     // strncpy(newh->value, s, strlen(s));
-    memcpy(newh->value, s, strlen(s) + 1);
+    // memcpy(newh->value, s, strlen(s) + 1);
+    snprintf(newh->value, length, "%s", s);
 
     // insert head
     newh->next = q->head;
@@ -99,7 +100,8 @@ bool q_insert_tail(queue_t *q, char *s)
     if (!newt)
         return false;
     /* Don't forget to allocate space for the string and copy it */
-    newt->value = malloc(sizeof(char) * (strlen(s) + 1));
+    size_t length = strlen(s) + 1;
+    newt->value = (char *) malloc(length * sizeof(char));
     if (!newt->value) {
         free(newt);
         return false;
@@ -107,12 +109,16 @@ bool q_insert_tail(queue_t *q, char *s)
 
     // memset(newt->value, '\0', strlen(s) + 1);
     // strncpy(newt->value, s, strlen(s));
-    memcpy(newt->value, s, strlen(s) + 1);
+    // memcpy(newt->value, s, strlen(s) + 1);
+    snprintf(newt->value, length, "%s", s);
 
     // insert tail
     newt->next = NULL;
-    if (!q->head)
+    if (!q->tail) {
         q->head = newt;
+        q->tail = newt;
+        return true;
+    }
     q->tail->next = newt;
     q->tail = newt;
     (q->size)++;
@@ -142,8 +148,9 @@ bool q_remove_head(queue_t *q, char *sp, size_t bufsize)
     list_ele_t *tmp;
     tmp = q->head;
     if (sp) {
-        strncpy(sp, tmp->value, bufsize - 1);
-        sp[bufsize - 1] = '\0';
+        // strncpy(sp, tmp->value, bufsize - 1);
+        // sp[bufsize - 1] = '\0';
+        snprintf(sp, bufsize, "%s", tmp->value);
     }
 
     // remove head
@@ -164,7 +171,10 @@ int q_size(queue_t *q)
     /* TODO: You need to write the code for this function */
     /* Remember: It should operate in O(1) time */
     /* TODO: Remove the above comment when you are about to implement. */
-    return (!q) ? 0 : q->size;
+    if (!q) {
+        return 0;
+    }
+    return q->size;
 }
 
 /*
@@ -178,7 +188,7 @@ void q_reverse(queue_t *q)
 {
     /* TODO: You need to write the code for this function */
     /* TODO: Remove the above comment when you are about to implement. */
-    if (!q || !q->head)
+    if (!q || !q->head || q->size == 1)
         return;
 
     q->tail = q->head;
@@ -247,7 +257,6 @@ void merge_sort(list_ele_t **head)
 
     // Splitting list
     list_ele_t *list1 = (*head)->next;
-    ;
     list_ele_t *list2 = *head;
 
     split_list(head, &list1, &list2);
