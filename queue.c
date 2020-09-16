@@ -192,8 +192,72 @@ void q_reverse(queue_t *q)
  * No effect if q is NULL or empty. In addition, if q has only one
  * element, do nothing.
  */
+void split_list(list_ele_t **head, list_ele_t **list1, list_ele_t **list2)
+{
+    *list1 = *head;
+    *list2 = (*head)->next;
+
+    while ((*list2) && (*list2)->next) {
+        *list1 = (*list1)->next;
+        *list2 = (*list2)->next->next;
+    }
+    // list1 is at the midnode
+
+    *list2 = (*list1)->next;
+    *list1 = *head;
+}
+
+void merge_sortedlist(list_ele_t **head, list_ele_t **list1, list_ele_t **list2)
+{
+    // Base case
+    if (*list1 == NULL) {
+        *head = *list2;
+        return;
+    } else if (*list2 == NULL) {
+        *head = *list1;
+        return;
+    }
+
+    // Recursively merge two lists
+    if ((*list1)->value <= (*list2)->value) {
+        *head = *list1;
+        merge_sortedlist(&(*head)->next, &(*list1)->next, list2);
+    } else {
+        *head = *list2;
+        merge_sortedlist(&(*head)->next, list1, &(*list2)->next);
+    }
+}
+
+void merge_sort(list_ele_t **head)
+{
+    // Base case
+    if (!(*head) || !(*head)->next)
+        return;
+
+    // Splitting list
+    list_ele_t *list1;
+    list_ele_t *list2;
+
+    split_list(head, &list1, &list2);
+
+    // Recursive sorting two list
+    merge_sort(&list1);
+    merge_sort(&list2);
+
+    // Merge sorted lists
+    merge_sortedlist(head, &list1, &list2);
+}
+
 void q_sort(queue_t *q)
 {
     /* TODO: You need to write the code for this function */
     /* TODO: Remove the above comment when you are about to implement. */
+    /* No effect if q is NULL or empty.*/
+    if (!q || !q->head)
+        return;
+
+    merge_sort(&q->head);
+
+    while (q->tail->next)
+        q->tail = q->tail->next;
 }
