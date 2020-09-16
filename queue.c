@@ -194,8 +194,8 @@ void q_reverse(queue_t *q)
  */
 void split_list(list_ele_t **head, list_ele_t **list1, list_ele_t **list2)
 {
-    *list1 = *head;
-    *list2 = (*head)->next;
+    //*list1 = *head;
+    //*list2 = (*head)->next;
 
     while ((*list2) && (*list2)->next) {
         *list1 = (*list1)->next;
@@ -235,17 +235,19 @@ void merge_sort(list_ele_t **head)
         return;
 
     // Splitting list
-    list_ele_t *list1;
-    list_ele_t *list2;
+    list_ele_t **list1 = head;
+    ;
+    list_ele_t **list2 = &(*head)->next;
+    ;
 
-    split_list(head, &list1, &list2);
+    split_list(head, list1, list2);
 
     // Recursive sorting two list
-    merge_sort(&list1);
-    merge_sort(&list2);
+    merge_sort(list1);
+    merge_sort(list2);
 
     // Merge sorted lists
-    merge_sortedlist(head, &list1, &list2);
+    merge_sortedlist(head, list1, list2);
 }
 
 void q_sort(queue_t *q)
